@@ -40,8 +40,10 @@ class YOLODataset:
 
         # Path to dataset
         self.path_to_dataset = pathlib.Path(path_to_dataset)
-        self.wavs_folder = self.path_to_dataset.joinpath('raw')
-        self.annotations_folder = self.path_to_dataset.joinpath('annotations')
+        # Nouveau : la base contient train/ et validation/
+        self.wavs_folder = self.path_to_dataset
+        self.annotations_folder = self.path_to_dataset
+
         self.images_folder = self.path_to_dataset.joinpath('images')
         self.labels_folder = self.path_to_dataset.joinpath('labels')
         if not self.images_folder.exists():
@@ -107,7 +109,10 @@ class YOLODataset:
             for sample_i in tqdm(selected_indices):
                 img_path = self.images_folder.joinpath(sample_i + '.png')
                 wav_name = '_'.join(sample_i.split('_')[1:3])
-                wav_path = self.wavs_folder.joinpath(dataset, wav_name + '.wav')
+                # wav_path = self.wavs_folder.joinpath(dataset, 'audio', wav_name + '.wav')
+                # Cherche dans tous les sous-dossiers de audio/
+                wav_path = list(self.wavs_folder.joinpath(dataset, 'audio').glob(f'**/{wav_name}.wav'))[0]
+
                 i = float(sample_i.split('_')[-1])
                 if overwrite or (not img_path.exists()):
                     start_chunk = int(i * self.blocksize)
@@ -159,7 +164,7 @@ class YOLODataset:
         """
         f_bandwidth = (self.desired_fs / 2) - self.F_MIN
         indices_per_deployment = {}
-        for selections_path in list(self.annotations_folder.glob('*.csv')):
+        for selections_path in list(self.path_to_dataset.glob('*/*/annotations/*.csv')):
             background_indices = []
             labels_indices = []
             selections = pd.read_csv(selections_path, parse_dates=['start_datetime', 'end_datetime'])
@@ -178,9 +183,11 @@ class YOLODataset:
 
             pbar = tqdm(total=len(selections['filename'].unique()))
 
-            dataset_name = selections.iloc[0].dataset
+            dataset_name = name_parts[0]
             for wav_name, wav_selections in selections.groupby('filename'):
-                wav_file_path = self.wavs_folder.joinpath(dataset_name, wav_name)
+                wav_file_path = list(self.wavs_folder.joinpath(dataset_name, 'audio').glob(f'**/{wav_name}'))[0]
+
+                # wav_file_path = self.wavs_folder.joinpath(dataset_name, 'audio', wav_name)
                 waveform_info = torchaudio.info(wav_file_path)
 
                 i = 0.0

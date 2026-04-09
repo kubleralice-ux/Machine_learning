@@ -1,0 +1,16 @@
+{
+    "duration": 5,
+    "overlap": 0.5,
+    "desired_fs": 24000,
+    "channel": 0,
+    "log": false,
+    "color": false,
+    "nfft": 1024,
+    "win_len": 1024,
+    "hop_len": 512,
+    "class_encoding": {
+        "species1": 0,
+        "species2": 1,
+        "species3": 2
+    }
+}
