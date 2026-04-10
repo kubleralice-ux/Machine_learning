@@ -39,7 +39,7 @@ def load_data_sklearn(base_dir, split, max_images=None):
 
 if __name__ == "__main__":
     print("=== Chargement des données ===")
-    X_train, y_train = load_data_sklearn(base_path, "train", max_images=100) # On a pris moins pour l'instant parceuqe c'est vraiment long
+    X_train, y_train = load_data_sklearn(base_path, "train", max_images=500) # On a pris moins pour l'instant parceuqe c'est vraiment long
 
     print(f"Entraînement : {X_train.shape[0]} images ({X_train.shape[1]} pixels/image)")
 
