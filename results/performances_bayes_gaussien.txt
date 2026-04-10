@@ -1,0 +1,15 @@
+=== Rapport de Classification : Bayes Gaussien ===
+
+              precision    recall  f1-score   support
+
+         bma       1.00      0.01      0.01      6268
+         bmb       0.32      0.86      0.47      2277
+         bmd       0.91      0.00      0.01      2168
+         bmz       0.86      0.41      0.55       918
+        bp20       0.41      1.00      0.58      2550
+    bp20plus       0.99      0.98      0.99      2758
+         bpd       0.19      0.56      0.28       688
+
+    accuracy                           0.46     17627
+   macro avg       0.67      0.55      0.41     17627
+weighted avg       0.77      0.46      0.34     17627
