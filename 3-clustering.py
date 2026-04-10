@@ -1,23 +1,11 @@
 import numpy as np
 from pathlib import Path
 from PIL import Image
-from sklearn.metrics import classification_report, ConfusionMatrixDisplay, adjusted_rand_score
-from sklearn.cluster import KMeans, DBSCAN, HDBSCAN, MeanShift
+from sklearn.metrics import adjusted_rand_score
 from tqdm.auto import tqdm
 
+from config import modeles_clustering, base_path
 
-# =============================
-# ===       CONFIG          ===
-# =============================
-
-modeles_clustering = {
-    "K-Means (3 clusters)": KMeans(n_clusters=3, random_state=42, n_init='auto'),
-    "DBSCAN": DBSCAN(eps=0.5, min_samples=5),
-    "HDBSCAN": HDBSCAN(min_cluster_size=5),
-    "Mean Shift": MeanShift(n_jobs=-1)
-}
-
-base_path = "biodcase_development_set"
 
 # =============================
 # === Fonctions utilitaires ===

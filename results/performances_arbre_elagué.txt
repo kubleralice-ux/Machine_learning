@@ -1,0 +1,15 @@
+=== Rapport de Classification : Arbre Elagué ===
+
+              precision    recall  f1-score   support
+
+         bma       0.94      0.99      0.97      6268
+         bmb       0.82      0.67      0.74      2277
+         bmd       0.66      0.58      0.61      2168
+         bmz       0.78      0.64      0.70       918
+        bp20       0.83      0.97      0.89      2550
+    bp20plus       1.00      0.98      0.99      2758
+         bpd       0.01      0.01      0.01       688
+
+    accuracy                           0.84     17627
+   macro avg       0.72      0.69      0.70     17627
+weighted avg       0.84      0.84      0.84     17627
