@@ -1,67 +1,61 @@
+import zipfile
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from PIL import Image
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
-def load_data_sklearn(base_dir, split):
+def load_data_sklearn(base_dir, split, max_images=None):
     input_dir = Path(base_dir) / "imagettes_padded" / split
+    X, y = [], []
     
-    X = [] # Contiendra les images aplaties
-    y = [] # Contiendra les étiquettes (les noms des classes)
-    
-    # Parcourir chaque sous-dossier (bma, zcl, etc.)
     classes = [d for d in input_dir.iterdir() if d.is_dir()]
     
     for class_dir in tqdm(classes, desc=f"Chargement {split}"):
         class_name = class_dir.name
+        files = list(class_dir.glob("*.png"))
         
-        for file in class_dir.glob("*.png"):
+        if max_images:
+            files = files[:max_images]
+        
+        for file in files:
             with Image.open(file) as img:
-                # Convertir l'image en tableau numpy
-                img_array = np.array(img)
-                # Aplatir l'image (de 2D à 1D)
-                img_flat = img_array.flatten()
-                
-                X.append(img_flat)
+                img_resized = img.convert('L').resize((64, 64), Image.Resampling.BILINEAR)
+                X.append(np.array(img_resized).flatten())
                 y.append(class_name)
                 
     return np.array(X), np.array(y)
 
-# 1. Chargement des données
-print("--- Étape 1 : Chargement des données ---")
-base_path = "biodcase_development_set"
-X_train, y_train = load_data_sklearn(base_path, "train")
-X_val, y_val = load_data_sklearn(base_path, "validation")
+if __name__ == "__main__":
+    base_path = "biodcase_development_set"
+    
+    print("--- Étape 1 : Chargement des données ---")
+    X_train, y_train = load_data_sklearn(base_path, "train", max_images=None)
+    X_val, y_val = load_data_sklearn(base_path, "validation", max_images=None)
 
-print(f"Entraînement : {X_train.shape[0]} images de {X_train.shape[1]} pixels.")
-print(f"Validation : {X_val.shape[0]} images de {X_val.shape[1]} pixels.")
+    print(f"Entraînement : {X_train.shape[0]} images ({X_train.shape[1]} pixels/image)")
+    print(f"Validation : {X_val.shape[0]} images ({X_val.shape[1]} pixels/image)")
 
-# 2. Création et entraînement du modèle
-print("\n--- Étape 2 : Entraînement du Random Forest ---")
-# n_jobs=-1 permet d'utiliser tous les cœurs de ton processeur
-clf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-clf.fit(X_train, y_train)
-print("Entraînement terminé !")
+    print("\n--- Étape 2 : Entraînement du Random Forest ---")
+    clf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+    clf.fit(X_train, y_train)
+    print("Entraînement terminé !")
 
-# 3. Évaluation du modèle
-print("\n--- Étape 3 : Évaluation sur le set de validation ---")
-y_pred = clf.predict(X_val)
+    print("\n--- Étape 3 : Évaluation ---")
+    y_pred = clf.predict(X_val)
 
-# Afficher les scores (Précision, Rappel, F1-score)
-print(classification_report(y_val, y_pred))
+    print(classification_report(y_val, y_pred))
 
-# Afficher la matrice de confusion
-print("Génération de la matrice de confusion...")
-fig, ax = plt.subplots(figsize=(10, 8))
-ConfusionMatrixDisplay.from_predictions(
-    y_val, y_pred, 
-    cmap="Blues", 
-    xticks_rotation='vertical',
-    ax=ax
-)
-plt.title("Matrice de Confusion - Random Forest")
-plt.tight_layout()
-plt.show()
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ConfusionMatrixDisplay.from_predictions(
+        y_val, y_pred, 
+        cmap="Blues", 
+        xticks_rotation='vertical',
+        ax=ax
+    )
+    plt.title("Matrice de Confusion: Random Forest")
+    plt.tight_layout()
+    plt.savefig("confusion_matrix/random_forest.png", dpi=300)
+    print("Matrice enregistrée sous le nom 'random_forest.png'")
