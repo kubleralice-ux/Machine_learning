@@ -1,0 +1,18 @@
+- extraire la partie intéressante des wav (Alice)
+
+Méthodes de classification : 
+
+- SVM (support vectors machines)
+- Réseaux de neurones (attention pas de réseaux convolutifs)
+- Méthodes Bayésiennes (Classifieur de Bayes)
+- Arbres de décision et ses variantes :
+Random Forest : ensemble d’arbres de décision
+Gradient Boosted Trees (XGBoost, LightGBM)
+Pruning : élagage pour éviter le surapprentissage
+
+- Méthodes de clustering :
+
+Kmeans (Mathis)
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise)
+HDBSCAN (Hiérarchique DBSCAN)
+Mean Shift
