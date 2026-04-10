@@ -1,3 +1,4 @@
 biodcase_development_set
+__pycache__/
 venv
 *.zip

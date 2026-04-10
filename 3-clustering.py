@@ -1,23 +1,11 @@
 import numpy as np
 from pathlib import Path
 from PIL import Image
-from sklearn.metrics import classification_report, ConfusionMatrixDisplay, adjusted_rand_score
-from sklearn.cluster import KMeans, DBSCAN, HDBSCAN, MeanShift
+from sklearn.metrics import adjusted_rand_score
 from tqdm.auto import tqdm
 
+from config import modeles_clustering, base_path
 
-# =============================
-# ===       CONFIG          ===
-# =============================
-
-modeles_clustering = {
-    "K-Means (3 clusters)": KMeans(n_clusters=3, random_state=42, n_init='auto'),
-    "DBSCAN": DBSCAN(eps=0.5, min_samples=5),
-    "HDBSCAN": HDBSCAN(min_cluster_size=5),
-    "Mean Shift": MeanShift(n_jobs=-1)
-}
-
-base_path = "biodcase_development_set"
 
 # =============================
 # === Fonctions utilitaires ===
@@ -51,7 +39,7 @@ def load_data_sklearn(base_dir, split, max_images=None):
 
 if __name__ == "__main__":
     print("=== Chargement des données ===")
-    X_train, y_train = load_data_sklearn(base_path, "train", max_images=100) # On a pris moins pour l'instant parceuqe c'est vraiment long
+    X_train, y_train = load_data_sklearn(base_path, "train", max_images=500) # On a pris moins pour l'instant parceuqe c'est vraiment long
 
     print(f"Entraînement : {X_train.shape[0]} images ({X_train.shape[1]} pixels/image)")
 

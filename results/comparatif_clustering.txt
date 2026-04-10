@@ -1,0 +1,5 @@
+=== Comparatif des modèles de Clustering ===
+
+Modèle : K-Means (3 clusters) | Clusters trouvés : 3 | Score ARI : 0.2409
+Modèle : DBSCAN | Clusters trouvés : 0 | Score ARI : 0.0000
+Modèle : HDBSCAN | Clusters trouvés : 11 | Score ARI : 0.0827

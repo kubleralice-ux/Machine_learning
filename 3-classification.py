@@ -4,29 +4,8 @@ from pathlib import Path
 from PIL import Image
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay
 from tqdm.auto import tqdm
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
 
-
-# =============================
-# ===       CONFIG          ===
-# =============================
-
-modeles_a_tester = {
-        "Random Forest": RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=42),
-        "KNN 5": KNeighborsClassifier(n_neighbors=5, n_jobs=-1),
-        "SVM": SVC(kernel='rbf', random_state=42),
-        "Réseau de Neurones (MLP)": MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=300, random_state=42),
-        "Bayes Gaussien": GaussianNB(),
-        "Gradient Boosting": HistGradientBoostingClassifier(random_state=42),
-        "Arbre Elagué": DecisionTreeClassifier(ccp_alpha=0.01, random_state=42)
-    }
-
-base_path = "biodcase_development_set"
+from config import modeles_classification, base_path
 
 # =============================
 # === Fonctions utilitaires ===
@@ -87,7 +66,7 @@ if __name__ == "__main__":
     print(f"Validation : {X_val.shape[0]} images ({X_val.shape[1]} pixels/image)")
 
     print("\n=== Entrainement et évaluation des modèles ===")
-    for nom, modele in modeles_a_tester.items():
+    for nom, modele in modeles_classification.items():
         print(f"\nEntraînement de {nom}...")
         modele.fit(X_train, y_train)
         evaluer_et_sauvegarder(modele, nom, X_val, y_val)
