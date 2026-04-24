@@ -3,24 +3,27 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from PIL import Image
 from tqdm.auto import tqdm
-from sklearn.cluster import HDBSCAN
+from sklearn.cluster import HDBSCAN, estimate_bandwidth
 from sklearn.decomposition import PCA
+from sklearn.metrics import adjusted_rand_score
 
 # --- 1. CHARGEMENT DES DONNEES ---
 
 def load_data_sklearn(base_dir, split, max_images=None):
     input_dir = Path(base_dir) / "imagettes_padded" / split
-    X = []
+    X, y = [], []
     classes = [d for d in input_dir.iterdir() if d.is_dir()]
 
-    for class_dir in tqdm(classes, desc=f"Chargement {split} (HDBSCAN)"):
+    for class_dir in tqdm(classes, desc=f"Chargement {split}"):
+        class_name = class_dir.name
         files = list(class_dir.glob("*.png"))
         if max_images: files = files[:max_images]
         for file in files:
             with Image.open(file) as img:
                 img_resized = img.convert('L').resize((64, 64), Image.Resampling.BILINEAR)
                 X.append(np.array(img_resized).flatten())
-    return np.array(X)
+                y.append(class_name)
+    return np.array(X), np.array(y)
 
 if __name__ == '__main__':
     SCRIPT_DIR = Path(__file__).resolve().parent
@@ -28,7 +31,7 @@ if __name__ == '__main__':
     base_path = PROJECT_ROOT / "biodcase_development_set"
 
     print("--- Étape 1 : Chargement des données ---")
-    X_data = load_data_sklearn(base_path, "train", max_images=200)
+    X_data, y_true = load_data_sklearn(base_path, "train", max_images=200)
 
     print("\n--- Étape 2 : Réduction de dimension (PCA 2D) ---")
     pca = PCA(n_components=2, random_state=42)
@@ -37,6 +40,10 @@ if __name__ == '__main__':
     print("\n--- Étape 3 : Clustering (HDBSCAN) ---")
     hdb = HDBSCAN(min_cluster_size=10)
     clusters_hdb = hdb.fit_predict(X_pca)
+
+    # CALCUL DU SCORE ARI
+    ari_hdb = adjusted_rand_score(y_true, clusters_hdb)
+    print(f"Score ARI global pour HDBSCAN : {ari_hdb:.4f}")
 
     plt.figure(figsize=(10, 6))
 

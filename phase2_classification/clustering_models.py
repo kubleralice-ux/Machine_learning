@@ -56,3 +56,101 @@ if __name__ == "__main__":
     output_path = SCRIPT_DIR / "kmeans_clusters.png"
     plt.savefig(output_path, dpi=300)
     print(f"Graphique de clustering sauvegardé sous : {output_path}")
+
+    # ====================================================================
+    # ---  INTERPRÉTATION PHYSIQUE DE LA PCA  ---
+    # ====================================================================
+
+    print("\n--- Analyse des composantes principales ---")
+
+    # ---------------------------------------------------------
+    # MÉTHODE 1 : Les images extrêmes de l'Axe X (Composante 1)
+    # ---------------------------------------------------------
+    # 1. On trouve l'index du point le plus à gauche et le plus à droite
+    index_extreme_gauche = np.argmin(X_pca[:, 0])
+    index_extreme_droite = np.argmax(X_pca[:, 0])
+
+    # 2. On récupère les lignes de pixels d'origine (4096 valeurs) et on reforme le carré de 64x64
+    img_gauche = X_data[index_extreme_gauche].reshape((64, 64))
+    img_droite = X_data[index_extreme_droite].reshape((64, 64))
+
+    # 3. On affiche les deux images côte à côte
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    axes[0].imshow(img_gauche, cmap='viridis', origin='lower')
+    axes[0].set_title(f"Point extrême GAUCHE\n(Vraie étiquette : {y_true[index_extreme_gauche]})")
+
+    axes[1].imshow(img_droite, cmap='viridis', origin='lower')
+    axes[1].set_title(f"Point extrême DROITE\n(Vraie étiquette : {y_true[index_extreme_droite]})")
+    plt.suptitle("Ce qui sépare le plus nos données (Axe X)")
+
+    # Sauvegarde
+    plt.savefig(SCRIPT_DIR / "pca_extremes.png", dpi=300)
+    plt.close()
+
+    # ---------------------------------------------------------
+    # MÉTHODE 2 : L'image "Fantôme" (Loadings de la PCA)
+    # ---------------------------------------------------------
+    # pca.components_ contient les "recettes" de nos axes.
+    # La ligne [0] est la recette de la Composante 1. On la reforme en 64x64.
+    image_fantome_pc1 = pca.components_[0].reshape((64, 64))
+
+    plt.figure(figsize=(8, 6))
+    # On utilise 'coolwarm' : Rouge = pixels très importants en positif, Bleu = pixels très importants en négatif
+    plt.imshow(image_fantome_pc1, cmap='coolwarm', origin='lower')
+    plt.colorbar(label="Poids (Importance du pixel pour la PCA)")
+    plt.title("Image Fantôme (PC1) : Quelles fréquences la machine regarde-t-elle ?")
+
+    # Sauvegarde
+    plt.savefig(SCRIPT_DIR / "pca_fantome.png", dpi=300)
+    plt.close()
+
+    print("Graphiques d'analyse de la PCA générés : 'pca_extremes.png' et 'pca_fantome.png'")
+
+    # ---------------------------------------------------------
+    # MÉTHODE 1 bis : Les images extrêmes de l'Axe Y (Composante 2)
+    # ---------------------------------------------------------
+    # On regarde la colonne 1 (qui correspond à l'axe Y en Python)
+    index_extreme_bas = np.argmin(X_pca[:, 1])
+    index_extreme_haut = np.argmax(X_pca[:, 1])
+
+    img_bas = X_data[index_extreme_bas].reshape((64, 64))
+    img_haut = X_data[index_extreme_haut].reshape((64, 64))
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    axes[0].imshow(img_bas, cmap='viridis', origin='lower')
+    axes[0].set_title(f"Point extrême BAS (Y négatif)\n(Vraie étiquette : {y_true[index_extreme_bas]})")
+
+    axes[1].imshow(img_haut, cmap='viridis', origin='lower')
+    axes[1].set_title(f"Point extrême HAUT (Y positif)\n(Vraie étiquette : {y_true[index_extreme_haut]})")
+    plt.suptitle("Ce qui sépare le plus nos données (Axe Y)")
+
+    plt.savefig(SCRIPT_DIR / "pca_extremes_Y.png", dpi=300)
+    plt.close()
+
+    # ====================================================================
+    # ---  VÉRITÉ TERRAIN (GROUND TRUTH) ---
+    # ====================================================================
+    print("\n--- Étape 5 : Génération de la Vérité Terrain ---")
+
+    # On récupère la liste des noms de classes uniques
+    classes_uniques = np.unique(y_true)
+    cmap = plt.cm.get_cmap('tab10', len(classes_uniques))
+
+    plt.figure(figsize=(10, 6))
+
+    for i, nom_classe in enumerate(classes_uniques):
+        masque = (y_true == nom_classe)
+        plt.scatter(X_pca[masque, 0], X_pca[masque, 1],
+                    label=nom_classe, color=cmap(i), alpha=0.6)
+
+    plt.title("Vérité Terrain : Les vraies classes biologiques (Après PCA)")
+    plt.xlabel("Composante Principale 1 (Continu vs Impulsif)")
+    plt.ylabel("Composante Principale 2 (Faible vs Puissant)")
+
+    plt.legend(title="Classes réelles", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+
+    # Sauvegarde du graphique
+    output_path_gt = SCRIPT_DIR / "verite_terrain.png"
+    plt.savefig(output_path_gt, dpi=300)
+    print(f"Graphique de la vérité terrain sauvegardé sous : {output_path_gt}")
